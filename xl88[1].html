@@ -1,0 +1,2349 @@
+<!doctype html>
+<html lang="en" class="no-js" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f6f3eb" id="themeColor">
+<meta name="description" content="XL88 — The Excel formula library by MC88. Ready-to-use formulas, fill in the blanks, copy, paste. No sign-up.">
+<meta name="color-scheme" content="light dark">
+<title>XL88 — Excel Formula Library</title>
+
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="XL88 — Excel Formula Library">
+<meta property="og:description" content="Ready-to-use Excel formulas. Fill in the blanks, copy, paste. No sign-up.">
+<meta property="og:site_name" content="XL88">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="XL88 — Excel Formula Library">
+<meta name="twitter:description" content="Ready-to-use Excel formulas. Fill in the blanks, copy, paste. No sign-up.">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231a4d2e'/><text x='50' y='72' font-family='monospace' font-size='54' font-weight='bold' text-anchor='middle' fill='%23f6f3eb'>XL</text></svg>">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<!-- Apply saved theme + flag JS availability BEFORE paint, to avoid FOUC -->
+<script>
+(function(){
+  try {
+    document.documentElement.classList.remove('no-js');
+    var t = localStorage.getItem('xl88.theme');
+    if (t === 'dark' || t === 'light') {
+      document.documentElement.dataset.theme = t;
+      var m = document.querySelector('meta[name="theme-color"]');
+      if (m) m.content = (t === 'dark') ? '#0f1210' : '#f6f3eb';
+    }
+  } catch(_) {}
+})();
+</script>
+
+<style>
+/* ==========================================================================
+   DESIGN TOKENS
+   ========================================================================== */
+:root,
+html[data-theme="light"]{
+  --bg:#f6f3eb;
+  --bg-2:#ede8dc;
+  --card:#ffffff;
+  --ink:#1a1a17;
+  --ink-2:#4a4a44;
+  --ink-3:#8a8a80;
+  --line:rgba(26,26,23,.14);
+  --line-2:rgba(26,26,23,.07);
+  --accent:#1a4d2e;
+  --accent-2:#c98a1e;
+  --accent-3:#a83828;
+  --field-bg:rgba(26,77,46,.06);
+  --preview-bg:#1a1a17;
+  --preview-ink:#e8e8e0;
+  --preview-accent:#a3e635;
+  --shadow:0 14px 40px -22px rgba(26,26,23,.28);
+  --shadow-lg:0 30px 70px -30px rgba(26,26,23,.4);
+  color-scheme:light;
+}
+html[data-theme="dark"]{
+  --bg:#0f1210;
+  --bg-2:#161a17;
+  --card:#1a1f1c;
+  --ink:#eceee9;
+  --ink-2:#a8acaa;
+  --ink-3:#6a6e6c;
+  --line:rgba(236,238,233,.13);
+  --line-2:rgba(236,238,233,.06);
+  --accent:#7dd3a0;
+  --accent-2:#d4a850;
+  --accent-3:#e06b5a;
+  --field-bg:rgba(125,211,160,.08);
+  --preview-bg:#0a0c0a;
+  --preview-ink:#e8e8e0;
+  --preview-accent:#a3e635;
+  --shadow:0 14px 40px -22px rgba(0,0,0,.6);
+  --shadow-lg:0 30px 70px -30px rgba(0,0,0,.75);
+  color-scheme:dark;
+}
+
+/* ==========================================================================
+   RESET & BASE
+   ========================================================================== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{
+  background:var(--bg);
+  scroll-behavior:smooth;
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+  scrollbar-gutter:stable;
+}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.6;
+  font-size:15px;
+  min-height:100vh;
+  min-height:100dvh;
+  overflow-x:hidden;
+  transition:background-color .5s ease,color .5s ease;
+  position:relative;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(to right, var(--line-2) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--line-2) 1px, transparent 1px);
+  background-size:28px 28px;
+  mask-image:radial-gradient(ellipse 90% 70% at 50% 30%, black 20%, transparent 90%);
+  -webkit-mask-image:radial-gradient(ellipse 90% 70% at 50% 30%, black 20%, transparent 90%);
+  transition:background-image .5s ease;
+}
+main,header,footer{position:relative;z-index:1}
+
+/* Hide app chrome if JS is disabled */
+html.no-js main,
+html.no-js .site-header,
+html.no-js .site-footer,
+html.no-js .modal,
+html.no-js .toast{ display:none !important; }
+
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input,select,textarea{font:inherit;color:inherit}
+img,svg{display:block;max-width:100%}
+h1,h2,h3{font-weight:600;letter-spacing:-.02em;line-height:1.15;text-wrap:balance}
+::selection{background:var(--accent);color:var(--bg)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+
+/* ==========================================================================
+   NOSCRIPT NOTICE
+   ========================================================================== */
+.noscript-notice{
+  max-width:600px;
+  margin:120px auto;
+  padding:24px;
+  text-align:center;
+  font-family:system-ui,sans-serif;
+}
+.noscript-notice h1{
+  font-size:1.5rem;
+  margin-bottom:14px;
+  color:var(--ink);
+}
+.noscript-notice p{
+  color:var(--ink-2);
+  line-height:1.65;
+}
+
+/* ==========================================================================
+   HEADER
+   ========================================================================== */
+.site-header{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:16px 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;
+  background:var(--bg);
+  background:color-mix(in srgb,var(--bg) 82%,transparent);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line-2);
+  transition:background-color .5s ease,border-color .5s ease;
+}
+.brand{
+  display:flex;align-items:baseline;gap:8px;
+  font-family:'Fraunces',serif;
+  font-size:1.5rem;font-weight:600;
+  letter-spacing:-.03em;
+  color:var(--ink);
+}
+.brand em{font-style:italic;font-weight:400;color:var(--accent);margin-left:2px}
+.header-tools{display:flex;align-items:center;gap:10px}
+
+.icon-btn{
+  width:38px;height:38px;
+  border-radius:50%;
+  border:1px solid var(--line);
+  background:var(--card);
+  display:grid;place-items:center;
+  color:var(--ink-2);
+  transition:all .25s ease;
+}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+.icon-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.theme-toggle .sun{display:none}
+html[data-theme="dark"] .theme-toggle .sun{display:block}
+html[data-theme="dark"] .theme-toggle .moon{display:none}
+
+/* ==========================================================================
+   HERO
+   ========================================================================== */
+.hero{
+  padding:140px 0 60px;
+  max-width:1180px;
+  margin-inline:auto;
+  padding-inline:24px;
+}
+.hero-eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.72rem;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:20px;
+  display:flex;align-items:center;gap:12px;
+}
+.hero-eyebrow::before{
+  content:'';width:24px;height:1px;background:var(--accent);opacity:.5;
+}
+.hero h1{
+  font-family:'Fraunces',serif;
+  font-size:clamp(3rem,9vw,7rem);
+  line-height:.9;
+  letter-spacing:-.04em;
+  font-weight:600;
+  color:var(--ink);
+  margin-bottom:22px;
+}
+.hero h1 em{font-style:italic;font-weight:400;color:var(--accent)}
+.hero-sub{
+  font-family:'Fraunces',serif;
+  font-style:italic;
+  font-size:clamp(1.05rem,2vw,1.4rem);
+  color:var(--ink-2);
+  max-width:640px;
+  line-height:1.55;
+  margin-bottom:44px;
+}
+.hero-sub b{color:var(--ink);font-weight:600;font-style:normal}
+
+.search-wrap{
+  position:relative;
+  max-width:640px;
+  margin-bottom:28px;
+}
+.search-wrap svg{
+  position:absolute;
+  top:50%;left:22px;
+  transform:translateY(-50%);
+  width:18px;height:18px;
+  fill:none;stroke:var(--ink-3);stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round;
+  pointer-events:none;
+  transition:stroke .25s ease;
+}
+#search{
+  width:100%;
+  padding:18px 90px 18px 56px;
+  border:2px solid var(--line);
+  border-radius:16px;
+  background:var(--card);
+  font-size:1.02rem;
+  font-family:inherit;
+  color:var(--ink);
+  outline:none;
+  transition:border-color .3s ease,box-shadow .3s ease,background-color .5s ease;
+}
+#search::placeholder{color:var(--ink-3)}
+#search:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 4px var(--field-bg);
+}
+.search-wrap:focus-within svg{stroke:var(--accent)}
+.search-hint{
+  position:absolute;
+  top:50%;right:20px;
+  transform:translateY(-50%);
+  font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;
+  color:var(--ink-3);
+  border:1px solid var(--line);
+  padding:3px 8px;
+  border-radius:5px;
+  pointer-events:none;
+  transition:opacity .25s ease;
+}
+#search:not(:placeholder-shown) ~ .search-hint,
+#search:focus ~ .search-hint{opacity:0}
+
+.categories{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:8px;
+}
+.cat-chip{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:9px 16px;
+  border:1px solid var(--line);
+  background:var(--card);
+  border-radius:999px;
+  font-size:.82rem;
+  font-weight:600;
+  color:var(--ink-2);
+  transition:all .25s ease;
+  white-space:nowrap;
+}
+.cat-chip:hover{border-color:var(--accent);color:var(--ink);transform:translateY(-1px)}
+.cat-chip.active{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:var(--bg);
+}
+.cat-chip .dot{
+  width:7px;height:7px;border-radius:50%;
+  background:currentColor;
+  opacity:.7;
+  flex-shrink:0;
+}
+.cat-chip.active .dot{opacity:1}
+
+/* ==========================================================================
+   FORMULA GRID
+   ========================================================================== */
+.formulas-section{
+  padding:30px 0 100px;
+  max-width:1180px;
+  margin-inline:auto;
+  padding-inline:24px;
+}
+.formulas-meta{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:24px;
+  padding-bottom:14px;
+  border-bottom:1px solid var(--line-2);
+}
+.formulas-count{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.72rem;
+  letter-spacing:.06em;
+  color:var(--ink-3);
+}
+.formulas-count b{color:var(--ink);font-weight:700}
+
+.formulas-grid{
+  display:grid;
+  /* min() guards against screens narrower than 300px (e.g. 280px folded phones) */
+  grid-template-columns:repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+  gap:16px;
+}
+
+.formula-card{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  padding:24px;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:16px;
+  text-align:left;
+  cursor:pointer;
+  overflow:hidden;
+  /* Helps the browser skip layout work for off-screen cards */
+  contain:layout style;
+  transition:transform .3s cubic-bezier(.2,.8,.2,1),
+             border-color .3s ease,
+             box-shadow .3s ease,
+             background-color .5s ease;
+  animation:cardIn .45s cubic-bezier(.2,.8,.2,1) both;
+  animation-delay:calc(var(--i,0) * 18ms);
+}
+@keyframes cardIn{
+  from{opacity:0;transform:translate3d(0,12px,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
+}
+.formula-card::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:3px;
+  background:var(--cat-color, var(--accent));
+  opacity:.85;
+}
+.formula-card:hover{
+  transform:translate3d(0,-4px,0);
+  border-color:color-mix(in srgb,var(--cat-color,var(--accent)) 60%, var(--line));
+  box-shadow:var(--shadow);
+}
+.formula-card:hover .formula-arrow{
+  transform:translate(2px,-2px);
+  color:var(--cat-color, var(--accent));
+}
+
+.card-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.card-cat{
+  display:inline-flex;align-items:center;gap:7px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.66rem;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  font-weight:500;
+}
+.card-cat .dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--cat-color, var(--accent));
+  flex-shrink:0;
+}
+.formula-arrow{
+  width:16px;height:16px;
+  color:var(--ink-3);
+  transition:transform .3s ease,color .3s ease;
+}
+.formula-arrow svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+.formula-name{
+  font-family:'JetBrains Mono',monospace;
+  font-size:1.35rem;
+  font-weight:700;
+  letter-spacing:-.02em;
+  color:var(--ink);
+  line-height:1.15;
+  word-break:break-word;
+  display:block;
+}
+.formula-desc{
+  font-size:.88rem;
+  color:var(--ink-2);
+  line-height:1.55;
+  display:-webkit-box;
+  -webkit-line-clamp:3;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+
+.empty-state{
+  display:none;
+  text-align:center;
+  padding:80px 20px;
+  color:var(--ink-3);
+}
+.empty-state.show{display:block}
+.empty-state h3{
+  font-family:'Fraunces',serif;
+  font-size:1.8rem;
+  color:var(--ink);
+  margin-bottom:10px;
+  font-weight:400;
+}
+.empty-state h3 em{font-style:italic;color:var(--accent)}
+
+/* ==========================================================================
+   MODAL
+   ========================================================================== */
+.modal{
+  position:fixed;inset:0;z-index:1000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .3s ease,visibility .3s ease;
+}
+.modal.open{opacity:1;visibility:visible;pointer-events:auto}
+.modal-backdrop{
+  position:absolute;inset:0;
+  background:rgba(10,10,8,.72);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.modal-panel{
+  position:relative;
+  width:100%;
+  max-width:760px;
+  max-height:92vh;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:20px;
+  box-shadow:var(--shadow-lg);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  transform:translate3d(0,24px,0) scale(.97);
+  transition:transform .32s cubic-bezier(.2,.8,.2,1);
+}
+.modal.open .modal-panel{transform:translate3d(0,0,0) scale(1)}
+
+.modal-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  padding:24px 26px 20px;
+  border-bottom:1px solid var(--line-2);
+  flex-shrink:0;
+}
+.modal-head-text{min-width:0;flex:1}
+.modal-cat{
+  display:inline-flex;align-items:center;gap:7px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.66rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--cat-color, var(--accent));
+  font-weight:700;
+  margin-bottom:6px;
+}
+.modal-cat .dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--cat-color, var(--accent));
+}
+.modal-name{
+  font-family:'JetBrains Mono',monospace;
+  font-size:clamp(1.4rem,3.5vw,1.9rem);
+  font-weight:700;
+  letter-spacing:-.02em;
+  color:var(--ink);
+  word-break:break-word;
+  line-height:1.1;
+}
+.modal-alt{
+  font-size:.78rem;
+  color:var(--ink-3);
+  margin-top:6px;
+  font-family:'JetBrains Mono',monospace;
+}
+.modal-alt b{color:var(--ink-2);font-weight:500}
+.modal-close{
+  width:38px;height:38px;flex-shrink:0;
+  border-radius:50%;
+  border:1px solid var(--line);
+  display:grid;place-items:center;
+  color:var(--ink-2);
+  transition:all .25s ease;
+}
+.modal-close:hover{border-color:var(--accent);color:var(--accent);transform:rotate(90deg)}
+.modal-close svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+
+.modal-body{
+  flex:1;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  padding:24px 26px 28px;
+}
+.modal-body::-webkit-scrollbar{width:6px}
+.modal-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px}
+
+/* Footer with the Back button — always visible, respects the iPhone home indicator */
+.modal-footer{
+  flex-shrink:0;
+  padding:14px 26px 18px;
+  padding-bottom:calc(18px + env(safe-area-inset-bottom, 0px));
+  border-top:1px solid var(--line-2);
+  background:var(--card);
+  display:flex;
+  justify-content:center;
+}
+.back-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 22px;
+  background:var(--bg-2);
+  border:1.5px solid var(--line);
+  border-radius:12px;
+  font-size:.88rem;
+  font-weight:600;
+  color:var(--ink-2);
+  transition:all .25s ease;
+}
+.back-btn:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+.back-btn:active{transform:translateY(0)}
+.back-btn svg{
+  width:15px;height:15px;
+  fill:none;stroke:currentColor;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round;
+  pointer-events:none;
+}
+
+.modal-desc{
+  font-size:.98rem;
+  color:var(--ink-2);
+  line-height:1.65;
+  margin-bottom:26px;
+}
+
+.section-label{
+  display:flex;align-items:center;gap:10px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.68rem;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  margin-bottom:14px;
+}
+.section-label::after{
+  content:'';flex:1;height:1px;background:var(--line-2);
+}
+
+.fields{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-bottom:26px;
+}
+@media (max-width:560px){.fields{grid-template-columns:1fr}}
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.field-label{
+  font-size:.78rem;
+  font-weight:600;
+  color:var(--ink-2);
+  font-family:'Inter',sans-serif;
+  letter-spacing:.01em;
+}
+.field-label .var{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.72rem;
+  color:var(--accent);
+  margin-left:6px;
+  font-weight:500;
+}
+.field input{
+  padding:11px 14px;
+  border:1.5px solid var(--line);
+  border-radius:10px;
+  background:var(--bg-2);
+  font-family:'JetBrains Mono',monospace;
+  font-size:.88rem;
+  color:var(--ink);
+  outline:none;
+  transition:border-color .25s ease,box-shadow .25s ease,background-color .5s ease;
+  width:100%;
+}
+.field input:focus{
+  border-color:var(--accent);
+  background:var(--card);
+  box-shadow:0 0 0 3px var(--field-bg);
+}
+
+.preview-section{margin-bottom:8px}
+.preview{
+  position:relative;
+  background:var(--preview-bg);
+  color:var(--preview-ink);
+  border-radius:12px;
+  padding:20px 70px 20px 22px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.92rem;
+  line-height:1.6;
+  overflow-x:auto;
+  word-break:break-all;
+  transition:background-color .5s ease;
+  min-height:64px;
+  display:flex;
+  align-items:center;
+}
+.preview code{
+  white-space:pre-wrap;
+  word-break:break-word;
+  color:var(--preview-ink);
+}
+.preview code .tok-fn{color:#a3e635;font-weight:600}
+.preview code .tok-str{color:#f0b949}
+.preview code .tok-ref{color:#7dd3fc}
+.copy-btn{
+  position:absolute;
+  top:50%;right:14px;
+  transform:translateY(-50%);
+  width:38px;height:38px;
+  border-radius:10px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.12);
+  color:var(--preview-ink);
+  display:grid;place-items:center;
+  transition:background-color .25s ease,transform .2s ease;
+}
+.copy-btn:hover{background:var(--preview-accent);color:var(--preview-bg);transform:translateY(-50%) scale(1.05)}
+.copy-btn:active{transform:translateY(-50%) scale(.94)}
+.copy-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+
+.preview-note{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.68rem;
+  color:var(--ink-3);
+  margin-top:10px;
+  letter-spacing:.02em;
+}
+
+/* ==========================================================================
+   GUIDE MODAL
+   ========================================================================== */
+.guide-hero{
+  font-family:'Fraunces',serif;
+  font-size:1.6rem;
+  font-weight:600;
+  letter-spacing:-.02em;
+  color:var(--ink);
+  margin-bottom:8px;
+  line-height:1.2;
+}
+.guide-hero em{font-style:italic;font-weight:400;color:var(--accent)}
+.guide-lead{
+  font-size:.95rem;
+  color:var(--ink-2);
+  line-height:1.65;
+  margin-bottom:28px;
+}
+.guide-block{margin-bottom:28px}
+.guide-block:last-child{margin-bottom:0}
+.guide-block h4{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  font-weight:600;
+  margin-bottom:14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.guide-block h4::after{content:'';flex:1;height:1px;background:var(--line-2)}
+.steps{
+  list-style:none;
+  counter-reset:step;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.steps li{
+  counter-increment:step;
+  position:relative;
+  padding:12px 16px 12px 52px;
+  background:var(--bg-2);
+  border:1px solid var(--line-2);
+  border-radius:12px;
+  font-size:.9rem;
+  color:var(--ink-2);
+  line-height:1.55;
+}
+.steps li::before{
+  content:counter(step);
+  position:absolute;
+  left:14px;top:50%;
+  transform:translateY(-50%);
+  width:26px;height:26px;
+  border-radius:50%;
+  background:var(--accent);
+  color:var(--bg);
+  display:grid;place-items:center;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.78rem;
+  font-weight:700;
+}
+.steps li b{color:var(--ink);font-weight:600}
+.steps li code{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.82em;
+  background:var(--field-bg);
+  color:var(--accent);
+  padding:2px 6px;
+  border-radius:4px;
+}
+.shortcut-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.shortcut{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:10px 14px;
+  background:var(--bg-2);
+  border:1px solid var(--line-2);
+  border-radius:10px;
+  font-size:.88rem;
+  color:var(--ink-2);
+}
+.kbd{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.74rem;
+  font-weight:700;
+  padding:4px 10px;
+  border:1px solid var(--line);
+  border-bottom-width:2px;
+  border-radius:6px;
+  background:var(--card);
+  color:var(--ink);
+  letter-spacing:.02em;
+  white-space:nowrap;
+}
+.cat-list{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:10px;
+}
+.cat-item{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  padding:12px 14px;
+  background:var(--bg-2);
+  border:1px solid var(--line-2);
+  border-radius:10px;
+  font-size:.85rem;
+  color:var(--ink-2);
+  line-height:1.5;
+}
+.cat-item .swatch{
+  width:10px;height:10px;
+  border-radius:50%;
+  flex-shrink:0;
+  margin-top:5px;
+}
+.cat-item b{color:var(--ink);font-weight:600;display:block;margin-bottom:2px}
+
+/* ==========================================================================
+   FOOTER
+   ========================================================================== */
+.site-footer{
+  padding:36px 0 40px;
+  border-top:1px solid var(--line-2);
+  margin-top:40px;
+}
+.footer-inner{
+  max-width:1180px;
+  margin-inline:auto;
+  padding-inline:24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.72rem;
+  letter-spacing:.04em;
+  color:var(--ink-3);
+}
+.footer-inner a{color:var(--ink-2);transition:color .25s ease}
+.footer-inner a:hover{color:var(--accent)}
+.footer-brand{
+  font-family:'Fraunces',serif;
+  font-size:.95rem;
+  font-style:italic;
+  color:var(--ink-2);
+}
+.footer-brand b{font-weight:600;color:var(--accent);font-style:normal}
+
+/* ==========================================================================
+   TOAST
+   ========================================================================== */
+.toast{
+  position:fixed;
+  left:50%;bottom:26px;
+  transform:translate(-50%,20px);
+  padding:11px 18px;
+  background:var(--ink);
+  color:var(--bg);
+  border-radius:999px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.76rem;
+  letter-spacing:.02em;
+  font-weight:600;
+  opacity:0;
+  pointer-events:none;
+  z-index:2000;
+  transition:opacity .3s ease,transform .3s cubic-bezier(.2,.8,.2,1);
+  max-width:calc(100vw - 32px);
+  text-align:center;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+@media (max-width:900px){
+  .hero{padding:120px 0 40px}
+  .hero h1{font-size:clamp(2.6rem,12vw,4.6rem)}
+}
+@media (max-width:640px){
+  .site-header{padding:12px 16px}
+  .brand{font-size:1.25rem}
+  .hero{padding:110px 0 30px;padding-inline:16px}
+  .formulas-section{padding-inline:16px}
+  .footer-inner{padding-inline:16px;flex-direction:column;text-align:center}
+  .formula-card{padding:20px}
+  .formula-name{font-size:1.15rem}
+
+  .modal{padding:0;align-items:flex-end}
+  .modal-panel{
+    max-height:94vh;
+    border-radius:20px 20px 0 0;
+    border-bottom:0;
+    transform:translate3d(0,40px,0);
+  }
+  .modal.open .modal-panel{transform:translate3d(0,0,0)}
+  .modal-header{padding:20px 20px 16px}
+  .modal-body{padding:20px 20px 20px}
+  .modal-footer{
+    padding:12px 20px 16px;
+    padding-bottom:calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+  .back-btn{width:100%;justify-content:center}
+  .preview{padding:18px 60px 18px 18px;font-size:.82rem}
+  .search-hint{display:none}
+  #search{padding-right:56px}
+
+  .modal-backdrop{
+    backdrop-filter:blur(4px);
+    -webkit-backdrop-filter:blur(4px);
+  }
+  .site-header{
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+  }
+}
+
+/* ==========================================================================
+   PRINT
+   ========================================================================== */
+@media print{
+  .site-header,
+  .site-footer,
+  .hero-eyebrow,
+  .search-wrap,
+  .categories,
+  .formulas-meta,
+  .formula-arrow,
+  .modal,
+  .toast{ display:none !important; }
+  body{ background:#fff !important; color:#000 !important; font-size:11pt; }
+  body::before{ display:none !important; }
+  .hero{ padding:0 0 16pt !important; max-width:none; }
+  .hero h1{ font-size:32pt !important; }
+  .hero-sub{ color:#333 !important; margin-bottom:20pt; }
+  .formulas-section{ padding:0 !important; max-width:none; }
+  .formulas-grid{ grid-template-columns:1fr 1fr !important; gap:8pt !important; }
+  .formula-card{
+    background:#fff !important;
+    border:1pt solid #ccc !important;
+    break-inside:avoid;
+    page-break-inside:avoid;
+    padding:10pt !important;
+    animation:none !important;
+  }
+  .formula-card::before{ display:none !important; }
+  .formula-name{ font-size:11pt !important; }
+  .formula-desc{
+    -webkit-line-clamp:unset !important;
+    display:block !important;
+    overflow:visible !important;
+    font-size:9.5pt !important;
+    color:#333 !important;
+  }
+  .card-cat{ color:#666 !important; }
+  .card-cat .dot{ background:#666 !important; }
+}
+</style>
+</head>
+<body>
+
+<noscript>
+  <div class="noscript-notice">
+    <h1>XL88 needs JavaScript</h1>
+    <p>This page builds the formula library in your browser. It does not send any data anywhere. Please enable JavaScript to use it.</p>
+  </div>
+</noscript>
+
+<!-- ============================================================
+     HEADER
+     ============================================================ -->
+<header class="site-header">
+  <a href="#" class="brand" aria-label="XL88 home">
+    XL<em>88</em>
+  </a>
+  <div class="header-tools">
+    <button type="button" class="icon-btn" id="guideBtn" aria-label="Open guide" title="How to use">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+    </button>
+    <button type="button" class="icon-btn theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle theme">
+      <svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- ============================================================
+     MAIN
+     ============================================================ -->
+<main>
+  <section class="hero">
+    <div class="hero-eyebrow">The Excel formula library</div>
+    <h1>
+      Formulas<br>
+      <em>for Excel.</em>
+    </h1>
+    <p class="hero-sub">
+      A curated collection of <b>ready-to-use formulas</b>. Pick one, fill in the blanks, copy it, and paste it into your spreadsheet. No sign-up. No accounts. Your formulas never leave your browser.
+    </p>
+
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" id="search" placeholder="Search a formula..." aria-label="Search formulas"
+             autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <span class="search-hint" aria-hidden="true">/</span>
+    </div>
+
+    <div class="categories" id="categories" role="group" aria-label="Formula categories"></div>
+  </section>
+
+  <section class="formulas-section">
+    <div class="formulas-meta">
+      <span class="formulas-count" id="countLabel" aria-live="polite"></span>
+    </div>
+    <div class="formulas-grid" id="grid"></div>
+    <div class="empty-state" id="empty">
+      <h3><em>Nothing here.</em></h3>
+      <p>Try another word, or browse by category.</p>
+    </div>
+  </section>
+</main>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span class="footer-brand">XL88 — a quiet formula library.</span>
+    <span>
+      &copy; 2026 &middot;
+      <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;mohamed005cheikh&#64;gmail&#46;com">mohamed005cheikh&#64;gmail&#46;com</a>
+      &nbsp;|&nbsp; by MC88
+    </span>
+  </div>
+</footer>
+
+<!-- ============================================================
+     FORMULA MODAL
+     ============================================================ -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalName">
+  <div class="modal-backdrop" data-close aria-hidden="true"></div>
+  <div class="modal-panel">
+    <header class="modal-header">
+      <div class="modal-head-text">
+        <span class="modal-cat" id="modalCat"><span class="dot"></span><span></span></span>
+        <h2 class="modal-name" id="modalName"></h2>
+        <div class="modal-alt" id="modalAlt"></div>
+      </div>
+      <button type="button" class="modal-close" data-close aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </header>
+    <div class="modal-body">
+      <p class="modal-desc" id="modalDesc"></p>
+
+      <div class="section-label">Fields</div>
+      <div class="fields" id="fields"></div>
+
+      <div class="section-label">Your formula</div>
+      <div class="preview-section">
+        <div class="preview">
+          <code id="preview"></code>
+          <button type="button" class="copy-btn" id="copyBtn" aria-label="Copy formula">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          </button>
+        </div>
+        <div class="preview-note">The argument separator depends on your regional settings.</div>
+      </div>
+    </div>
+    <!-- Always-visible Back button — critical for mobile users who cannot reach the X. -->
+    <footer class="modal-footer">
+      <button type="button" class="back-btn" data-close aria-label="Back to formulas">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        <span>Back to formulas</span>
+      </button>
+    </footer>
+  </div>
+</div>
+
+<!-- ============================================================
+     GUIDE MODAL
+     ============================================================ -->
+<div class="modal" id="guideModal" role="dialog" aria-modal="true" aria-labelledby="guideTitle">
+  <div class="modal-backdrop" data-close-guide aria-hidden="true"></div>
+  <div class="modal-panel">
+    <header class="modal-header">
+      <div class="modal-head-text">
+        <span class="modal-cat" style="--cat-color:var(--accent)"><span class="dot"></span><span>Guide</span></span>
+        <h2 class="modal-name" id="guideTitle">How to use XL88</h2>
+        <div class="modal-alt">Everything you need in one minute.</div>
+      </div>
+      <button type="button" class="modal-close" data-close-guide aria-label="Close guide">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </header>
+    <div class="modal-body">
+
+      <p class="guide-lead">
+        XL88 is a plain HTML file. Nothing to install, nothing to sign up for. Open it, find the formula you need, copy it, and paste it directly into your spreadsheet.
+      </p>
+
+      <div class="guide-block">
+        <h4>Quick start</h4>
+        <ol class="steps">
+          <li>Browse the grid or use the <b>search box</b> to find a function by name or purpose.</li>
+          <li>Click any <b>formula card</b> to open its details.</li>
+          <li>Fill in the fields with your own cell references or values.</li>
+          <li>Watch the <b>live preview</b> update as you type.</li>
+          <li>Click the <b>copy icon</b> and paste the formula into Excel.</li>
+        </ol>
+      </div>
+
+      <div class="guide-block">
+        <h4>Keyboard shortcuts</h4>
+        <div class="shortcut-list">
+          <div class="shortcut"><span>Focus the search box</span><span class="kbd">/</span></div>
+          <div class="shortcut"><span>Close any open dialog</span><span class="kbd">Esc</span></div>
+          <div class="shortcut"><span>Clear search and unfocus</span><span class="kbd">Esc</span></div>
+        </div>
+      </div>
+
+      <div class="guide-block">
+        <h4>Good to know</h4>
+        <div class="shortcut-list">
+          <div class="shortcut"><span>Function names</span><span class="kbd">English</span></div>
+          <div class="shortcut"><span>Argument separator</span><span class="kbd">, or ;</span></div>
+          <div class="shortcut"><span>Format</span><span class="kbd">HTML</span></div>
+          <div class="shortcut"><span>Works with</span><span class="kbd">Excel · Sheets</span></div>
+        </div>
+      </div>
+
+      <div class="guide-block">
+        <h4>Categories</h4>
+        <div class="cat-list" id="catList"></div>
+      </div>
+
+    </div>
+    <footer class="modal-footer">
+      <button type="button" class="back-btn" data-close-guide aria-label="Back to formulas">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        <span>Back to formulas</span>
+      </button>
+    </footer>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ==========================================================================
+     SAFE STORAGE (localStorage can throw on file:// in some browsers)
+     ========================================================================== */
+  function storeGet(k){ try { return window.localStorage.getItem(k); } catch(_) { return null; } }
+  function storeSet(k,v){ try { window.localStorage.setItem(k,v); } catch(_) {} }
+
+  /* ==========================================================================
+     CATEGORIES
+     ========================================================================== */
+  const CATEGORIES = {
+    lookup:      { color:'#1a4d2e', label:'Lookup',        hint:'Find values inside a table' },
+    conditional: { color:'#c98a1e', label:'Conditional',   hint:'Branch logic with IF and friends' },
+    math:        { color:'#1e3a5f', label:'Math',          hint:'Arithmetic and numeric operations' },
+    statistical: { color:'#b8563a', label:'Statistical',   hint:'Averages, counts, ranks, min and max' },
+    logical:     { color:'#8a6e1e', label:'Logical',       hint:'Combine boolean results' },
+    text:        { color:'#6b3a8a', label:'Text',          hint:'Slice, join, and format strings' },
+    clean:       { color:'#a83828', label:'Clean',         hint:'Normalize and tidy messy text' },
+    date:        { color:'#0d7a6a', label:'Date',          hint:'Work with dates and times' },
+    dynamic:     { color:'#2c5f8a', label:'Dynamic Array', hint:'Modern array formulas (Excel 365)' },
+    reference:   { color:'#5a6b3a', label:'Reference',     hint:'Cell and range utilities' },
+    financial:   { color:'#8a3a6b', label:'Financial',     hint:'Loans, investments, NPV and IRR' },
+    info:        { color:'#4a4a8a', label:'Info',          hint:'Type checks and validation' }
+  };
+
+  /* ==========================================================================
+     FORMULA LIBRARY
+     ========================================================================== */
+  const FORMULAS = [
+    /* ---------------- LOOKUP ---------------- */
+    { id:'vlookup', cat:'lookup', name:'VLOOKUP', alt:'Vertical Lookup',
+      desc:'Searches for a value in the first column of a table and returns a value from a column on the same row.',
+      template:'=VLOOKUP({{value}}, {{table}}, {{column}}, FALSE)',
+      fields:[
+        { key:'value',  label:'Search value',  default:'A2' },
+        { key:'table',  label:'Table range',   default:'Sheet2!A:D' },
+        { key:'column', label:'Column number', default:'3' }
+      ]},
+    { id:'xlookup', cat:'lookup', name:'XLOOKUP', alt:'Modern lookup',
+      desc:'A modern replacement for VLOOKUP. Searches any column, returns from any other column, and handles missing values cleanly.',
+      template:'=XLOOKUP({{value}}, {{lookup}}, {{return}}, "{{fallback}}")',
+      fields:[
+        { key:'value',    label:'Search value',   default:'A2' },
+        { key:'lookup',   label:'Search column',  default:'Sheet2!A:A' },
+        { key:'return',   label:'Return column',  default:'Sheet2!C:C' },
+        { key:'fallback', label:'If not found',   default:'Not found' }
+      ]},
+    { id:'hlookup', cat:'lookup', name:'HLOOKUP', alt:'Horizontal Lookup',
+      desc:'Searches for a value in the top row of a table and returns a value from a row below, in the same column.',
+      template:'=HLOOKUP({{value}}, {{table}}, {{row}}, FALSE)',
+      fields:[
+        { key:'value', label:'Search value', default:'A2' },
+        { key:'table', label:'Table range',  default:'Sheet2!A1:D10' },
+        { key:'row',   label:'Row number',   default:'3' }
+      ]},
+    { id:'index', cat:'lookup', name:'INDEX', alt:'Return by position',
+      desc:'Returns the value at a specific row and column inside a range. Pairs perfectly with MATCH.',
+      template:'=INDEX({{range}}, {{row}}, {{column}})',
+      fields:[
+        { key:'range',  label:'Range',         default:'A1:C100' },
+        { key:'row',    label:'Row number',    default:'5' },
+        { key:'column', label:'Column number', default:'3' }
+      ]},
+    { id:'match', cat:'lookup', name:'MATCH', alt:'Find position',
+      desc:'Returns the position of a value inside a range. Combined with INDEX, it becomes a flexible lookup.',
+      template:'=MATCH({{value}}, {{range}}, 0)',
+      fields:[
+        { key:'value', label:'Search value',  default:'A2' },
+        { key:'range', label:'Range to scan', default:'A1:A100' }
+      ]},
+    { id:'xmatch', cat:'lookup', name:'XMATCH', alt:'Modern MATCH',
+      desc:'Modern version of MATCH. Returns the position of a value, with optional search mode and match mode.',
+      template:'=XMATCH({{value}}, {{range}}, {{match_mode}}, {{search_mode}})',
+      fields:[
+        { key:'value',       label:'Search value',            default:'A2' },
+        { key:'range',       label:'Range',                   default:'A1:A100' },
+        { key:'match_mode',  label:'Match mode (0/1/-1/2)',   default:'0' },
+        { key:'search_mode', label:'Search mode (1/-1/2/-2)', default:'1' }
+      ]},
+    { id:'indexmatch', cat:'lookup', name:'INDEX + MATCH', alt:'Flexible lookup',
+      desc:'The classic combination. INDEX returns the value, MATCH finds its position. Works to the left of the search column, unlike VLOOKUP.',
+      template:'=INDEX({{return}}, MATCH({{value}}, {{lookup}}, 0))',
+      fields:[
+        { key:'return', label:'Return range', default:'C1:C100' },
+        { key:'value',  label:'Search value', default:'A2' },
+        { key:'lookup', label:'Search range', default:'A1:A100' }
+      ]},
+    { id:'indirect', cat:'lookup', name:'INDIRECT', alt:'Text to reference',
+      desc:'Converts a text string into a valid cell or range reference.',
+      template:'=INDIRECT("{{ref}}")',
+      fields:[ { key:'ref', label:'Text reference', default:'A1' } ]},
+    { id:'offset', cat:'lookup', name:'OFFSET', alt:'Shifted reference',
+      desc:'Returns a reference to a range that is offset from a starting cell by a given number of rows and columns.',
+      template:'=OFFSET({{reference}}, {{rows}}, {{cols}}, {{height}}, {{width}})',
+      fields:[
+        { key:'reference', label:'Starting cell',  default:'A1' },
+        { key:'rows',      label:'Rows offset',    default:'1' },
+        { key:'cols',      label:'Columns offset', default:'0' },
+        { key:'height',    label:'Height',         default:'10' },
+        { key:'width',     label:'Width',          default:'1' }
+      ]},
+    { id:'choose', cat:'lookup', name:'CHOOSE', alt:'Pick by index',
+      desc:'Returns a value from a list, based on a numeric index.',
+      template:'=CHOOSE({{index}}, {{v1}}, {{v2}}, {{v3}})',
+      fields:[
+        { key:'index', label:'Index',   default:'2' },
+        { key:'v1',    label:'Value 1', default:'A2' },
+        { key:'v2',    label:'Value 2', default:'B2' },
+        { key:'v3',    label:'Value 3', default:'C2' }
+      ]},
+
+    /* ---------------- CONDITIONAL ---------------- */
+    { id:'if', cat:'conditional', name:'IF', alt:'If / then',
+      desc:'Tests a condition. Returns one value if TRUE, another if FALSE.',
+      template:'=IF({{condition}}, "{{true}}", "{{false}}")',
+      fields:[
+        { key:'condition', label:'Condition', default:'A2>100' },
+        { key:'true',      label:'If true',   default:'High' },
+        { key:'false',     label:'If false',  default:'Low' }
+      ]},
+    { id:'iferror', cat:'conditional', name:'IFERROR', alt:'Handle errors',
+      desc:'Wraps any formula and returns a fallback if the formula throws an error like #N/A or #DIV/0!.',
+      template:'=IFERROR({{formula}}, "{{fallback}}")',
+      fields:[
+        { key:'formula',  label:'Formula to test', default:'A2/B2' },
+        { key:'fallback', label:'If error',        default:'—' }
+      ]},
+    { id:'ifna', cat:'conditional', name:'IFNA', alt:'Handle #N/A only',
+      desc:'Returns a custom result specifically if a formula returns the #N/A error, otherwise returns the result.',
+      template:'=IFNA({{formula}}, "{{fallback}}")',
+      fields:[
+        { key:'formula',  label:'Formula to test', default:'VLOOKUP(A2, Sheet2!A:C, 3, FALSE)' },
+        { key:'fallback', label:'If #N/A',         default:'Not found' }
+      ]},
+    { id:'ifs', cat:'conditional', name:'IFS', alt:'Multiple conditions',
+      desc:'Tests several conditions in order and returns the value of the first one that is TRUE. Replaces nested IFs.',
+      template:'=IFS({{cond1}}, "{{val1}}", {{cond2}}, "{{val2}}", TRUE, "{{default}}")',
+      fields:[
+        { key:'cond1',   label:'Condition 1', default:'A2>=90' },
+        { key:'val1',    label:'Value 1',     default:'A' },
+        { key:'cond2',   label:'Condition 2', default:'A2>=80' },
+        { key:'val2',    label:'Value 2',     default:'B' },
+        { key:'default', label:'Otherwise',   default:'C' }
+      ]},
+    { id:'switch', cat:'conditional', name:'SWITCH', alt:'Match a value',
+      desc:'Evaluates an expression against a list of values and returns the result of the first match.',
+      template:'=SWITCH({{expr}}, "{{v1}}", "{{r1}}", "{{v2}}", "{{r2}}", "{{default}}")',
+      fields:[
+        { key:'expr',    label:'Expression', default:'A2' },
+        { key:'v1',      label:'Value 1',    default:'A' },
+        { key:'r1',      label:'Result 1',   default:'Excellent' },
+        { key:'v2',      label:'Value 2',    default:'B' },
+        { key:'r2',      label:'Result 2',   default:'Good' },
+        { key:'default', label:'Default',    default:'Other' }
+      ]},
+    { id:'ifand', cat:'conditional', name:'IF + AND', alt:'Two conditions at once',
+      desc:'Returns a value only when several conditions are all true at the same time.',
+      template:'=IF(AND({{cond1}}, {{cond2}}), "{{true}}", "{{false}}")',
+      fields:[
+        { key:'cond1', label:'Condition 1',  default:'A2>0' },
+        { key:'cond2', label:'Condition 2',  default:'B2<100' },
+        { key:'true',  label:'If both true', default:'OK' },
+        { key:'false', label:'Otherwise',    default:'Check' }
+      ]},
+
+    /* ---------------- LOGICAL ---------------- */
+    { id:'and', cat:'logical', name:'AND', alt:'All true',
+      desc:'Returns TRUE if all given conditions evaluate to TRUE, FALSE otherwise.',
+      template:'=AND({{cond1}}, {{cond2}})',
+      fields:[
+        { key:'cond1', label:'Condition 1', default:'A2>0' },
+        { key:'cond2', label:'Condition 2', default:'B2<100' }
+      ]},
+    { id:'or', cat:'logical', name:'OR', alt:'At least one true',
+      desc:'Returns TRUE if at least one condition is TRUE, FALSE otherwise.',
+      template:'=OR({{cond1}}, {{cond2}})',
+      fields:[
+        { key:'cond1', label:'Condition 1', default:'A2>0' },
+        { key:'cond2', label:'Condition 2', default:'B2<100' }
+      ]},
+    { id:'not', cat:'logical', name:'NOT', alt:'Reverse logic',
+      desc:'Reverses the logical evaluation of its argument (TRUE becomes FALSE, and vice versa).',
+      template:'=NOT({{condition}})',
+      fields:[ { key:'condition', label:'Condition', default:'A2>0' } ]},
+
+    /* ---------------- MATH ---------------- */
+    { id:'sum', cat:'math', name:'SUM', alt:'Add numbers',
+      desc:'Adds every number in a range.',
+      template:'=SUM({{range}})',
+      fields:[{ key:'range', label:'Range', default:'A1:A100' }]},
+    { id:'sumif', cat:'math', name:'SUMIF', alt:'Sum with a condition',
+      desc:'Adds the values in a range only where a related condition is met.',
+      template:'=SUMIF({{criteria_range}}, "{{criteria}}", {{sum_range}})',
+      fields:[
+        { key:'criteria_range', label:'Criteria range', default:'A1:A100' },
+        { key:'criteria',       label:'Criteria',       default:'>100' },
+        { key:'sum_range',      label:'Range to sum',   default:'B1:B100' }
+      ]},
+    { id:'sumifs', cat:'math', name:'SUMIFS', alt:'Sum with many conditions',
+      desc:'Adds values only when several conditions are met at the same time.',
+      template:'=SUMIFS({{sum_range}}, {{range1}}, "{{crit1}}", {{range2}}, "{{crit2}}")',
+      fields:[
+        { key:'sum_range', label:'Range to sum', default:'C1:C100' },
+        { key:'range1',    label:'Range 1',      default:'A1:A100' },
+        { key:'crit1',     label:'Criteria 1',   default:'>100' },
+        { key:'range2',    label:'Range 2',      default:'B1:B100' },
+        { key:'crit2',     label:'Criteria 2',   default:'Open' }
+      ]},
+    { id:'abs', cat:'math', name:'ABS', alt:'Absolute value',
+      desc:'Returns the absolute (positive) value of a number.',
+      template:'=ABS({{number}})',
+      fields:[{ key:'number', label:'Number', default:'A2' }]},
+    { id:'round', cat:'math', name:'ROUND', alt:'Round to digits',
+      desc:'Rounds a number to a specified number of decimal places.',
+      template:'=ROUND({{number}}, {{digits}})',
+      fields:[
+        { key:'number', label:'Number', default:'A2' },
+        { key:'digits', label:'Digits', default:'2' }
+      ]},
+    { id:'roundup', cat:'math', name:'ROUNDUP', alt:'Round away from zero',
+      desc:'Rounds a number up, away from zero.',
+      template:'=ROUNDUP({{number}}, {{digits}})',
+      fields:[
+        { key:'number', label:'Number', default:'A2' },
+        { key:'digits', label:'Digits', default:'2' }
+      ]},
+    { id:'rounddown', cat:'math', name:'ROUNDDOWN', alt:'Round toward zero',
+      desc:'Rounds a number down, toward zero.',
+      template:'=ROUNDDOWN({{number}}, {{digits}})',
+      fields:[
+        { key:'number', label:'Number', default:'A2' },
+        { key:'digits', label:'Digits', default:'2' }
+      ]},
+    { id:'mod', cat:'math', name:'MOD', alt:'Remainder',
+      desc:'Returns the remainder after a number is divided by a divisor.',
+      template:'=MOD({{number}}, {{divisor}})',
+      fields:[
+        { key:'number',  label:'Number',  default:'A2' },
+        { key:'divisor', label:'Divisor', default:'3' }
+      ]},
+    { id:'int', cat:'math', name:'INT', alt:'Round down to integer',
+      desc:'Rounds a number down to the nearest integer.',
+      template:'=INT({{number}})',
+      fields:[{ key:'number', label:'Number', default:'A2' }]},
+    { id:'rand', cat:'math', name:'RAND', alt:'Random 0–1',
+      desc:'Generates a random floating-point number between 0 and 1.',
+      template:'=RAND()', fields:[]},
+    { id:'randbetween', cat:'math', name:'RANDBETWEEN', alt:'Random integer',
+      desc:'Generates a random integer between two specified numbers.',
+      template:'=RANDBETWEEN({{bottom}}, {{top}})',
+      fields:[
+        { key:'bottom', label:'Minimum', default:'1' },
+        { key:'top',    label:'Maximum', default:'100' }
+      ]},
+    { id:'sqrt', cat:'math', name:'SQRT', alt:'Square root',
+      desc:'Returns the positive square root of a number.',
+      template:'=SQRT({{number}})',
+      fields:[{ key:'number', label:'Number', default:'A2' }]},
+
+    /* ---------------- STATISTICAL ---------------- */
+    { id:'average', cat:'statistical', name:'AVERAGE', alt:'Arithmetic mean',
+      desc:'Returns the arithmetic mean of a range of numbers.',
+      template:'=AVERAGE({{range}})',
+      fields:[{ key:'range', label:'Range', default:'A1:A100' }]},
+    { id:'averageif', cat:'statistical', name:'AVERAGEIF', alt:'Mean with a condition',
+      desc:'Calculates the mean of cells that meet a single condition.',
+      template:'=AVERAGEIF({{criteria_range}}, "{{criteria}}", {{avg_range}})',
+      fields:[
+        { key:'criteria_range', label:'Criteria range',   default:'A1:A100' },
+        { key:'criteria',       label:'Criteria',         default:'>100' },
+        { key:'avg_range',      label:'Range to average', default:'B1:B100' }
+      ]},
+    { id:'averageifs', cat:'statistical', name:'AVERAGEIFS', alt:'Mean with many conditions',
+      desc:'Calculates the mean of cells that meet multiple conditions.',
+      template:'=AVERAGEIFS({{avg_range}}, {{range1}}, "{{crit1}}", {{range2}}, "{{crit2}}")',
+      fields:[
+        { key:'avg_range', label:'Range to average', default:'C1:C100' },
+        { key:'range1',    label:'Range 1',          default:'A1:A100' },
+        { key:'crit1',     label:'Criteria 1',       default:'>100' },
+        { key:'range2',    label:'Range 2',          default:'B1:B100' },
+        { key:'crit2',     label:'Criteria 2',       default:'Open' }
+      ]},
+    { id:'count', cat:'statistical', name:'COUNT', alt:'Count numbers',
+      desc:'Counts the number of cells that contain numbers.',
+      template:'=COUNT({{range}})',
+      fields:[{ key:'range', label:'Range', default:'A1:A100' }]},
+    { id:'counta', cat:'statistical', name:'COUNTA', alt:'Count non-empty',
+      desc:'Counts the number of non-empty cells (text, numbers, booleans, errors).',
+      template:'=COUNTA({{range}})',
+      fields:[{ key:'range', label:'Range', default:'A1:A100' }]},
+    { id:'countblank', cat:'statistical', name:'COUNTBLANK', alt:'Count empty cells',
+      desc:'Counts the number of empty cells in a range.',
+      template:'=COUNTBLANK({{range}})',
+      fields:[{ key:'range', label:'Range', default:'A1:A100' }]},
+    { id:'countif', cat:'statistical', name:'COUNTIF', alt:'Count with a condition',
+      desc:'Counts how many cells in a range match a condition.',
+      template:'=COUNTIF({{range}}, "{{criteria}}")',
+      fields:[
+        { key:'range',    label:'Range',    default:'A1:A100' },
+        { key:'criteria', label:'Criteria', default:'>50' }
+      ]},
+    { id:'countifs', cat:'statistical', name:'COUNTIFS', alt:'Count with many conditions',
+      desc:'Counts cells that meet multiple conditions at the same time.',
+      template:'=COUNTIFS({{range1}}, "{{crit1}}", {{range2}}, "{{crit2}}")',
+      fields:[
+        { key:'range1', label:'Range 1',    default:'A1:A100' },
+        { key:'crit1',  label:'Criteria 1', default:'>50' },
+        { key:'range2', label:'Range 2',    default:'B1:B100' },
+        { key:'crit2',  label:'Criteria 2', default:'Open' }
+      ]},
+    { id:'min', cat:'statistical', name:'MIN', alt:'Smallest value',
+      desc:'Returns the smallest value in a set of numbers.',
+      template:'=MIN({{range}})',
+      fields:[{ key:'range', label:'Range', default:'A1:A100' }]},
+    { id:'max', cat:'statistical', name:'MAX', alt:'Largest value',
+      desc:'Returns the largest value in a set of numbers.',
+      template:'=MAX({{range}})',
+      fields:[{ key:'range', label:'Range', default:'A1:A100' }]},
+    { id:'large', cat:'statistical', name:'LARGE', alt:'K-th largest',
+      desc:'Returns the k-th largest value in a dataset.',
+      template:'=LARGE({{range}}, {{k}})',
+      fields:[
+        { key:'range', label:'Range',        default:'A1:A100' },
+        { key:'k',     label:'K (position)', default:'2' }
+      ]},
+    { id:'small', cat:'statistical', name:'SMALL', alt:'K-th smallest',
+      desc:'Returns the k-th smallest value in a dataset.',
+      template:'=SMALL({{range}}, {{k}})',
+      fields:[
+        { key:'range', label:'Range',        default:'A1:A100' },
+        { key:'k',     label:'K (position)', default:'2' }
+      ]},
+    { id:'median', cat:'statistical', name:'MEDIAN', alt:'Middle value',
+      desc:'Returns the middle value in a set of numbers.',
+      template:'=MEDIAN({{range}})',
+      fields:[{ key:'range', label:'Range', default:'A1:A100' }]},
+    { id:'modesngl', cat:'statistical', name:'MODE.SNGL', alt:'Most frequent value',
+      desc:'Returns the most frequently occurring value in a dataset.',
+      template:'=MODE.SNGL({{range}})',
+      fields:[{ key:'range', label:'Range', default:'A1:A100' }]},
+    { id:'rankeq', cat:'statistical', name:'RANK.EQ', alt:'Rank of a value',
+      desc:'Returns the rank of a number in a list relative to other values.',
+      template:'=RANK.EQ({{value}}, {{range}}, {{order}})',
+      fields:[
+        { key:'value', label:'Value', default:'A2' },
+        { key:'range', label:'Range', default:'A1:A100' },
+        { key:'order', label:'Order (0=desc, 1=asc)', default:'0' }
+      ]},
+
+    /* ---------------- DYNAMIC ARRAY ---------------- */
+    { id:'filter', cat:'dynamic', name:'FILTER', alt:'Filter an array',
+      desc:'Filters a range or array based on boolean criteria (Dynamic Array).',
+      template:'=FILTER({{array}}, {{include}}, "{{if_empty}}")',
+      fields:[
+        { key:'array',    label:'Array',    default:'A2:C100' },
+        { key:'include',  label:'Include',  default:'B2:B100="Open"' },
+        { key:'if_empty', label:'If empty', default:'None' }
+      ]},
+    { id:'unique', cat:'dynamic', name:'UNIQUE', alt:'Distinct values',
+      desc:'Extracts a list of distinct or unique values from a range (Dynamic Array).',
+      template:'=UNIQUE({{array}})',
+      fields:[{ key:'array', label:'Array', default:'A2:A100' }]},
+    { id:'sort', cat:'dynamic', name:'SORT', alt:'Sort an array',
+      desc:'Sorts the contents of a range or array in ascending or descending order (Dynamic Array).',
+      template:'=SORT({{array}}, {{index}}, {{order}})',
+      fields:[
+        { key:'array', label:'Array',       default:'A2:C100' },
+        { key:'index', label:'Sort column', default:'1' },
+        { key:'order', label:'Order (1=asc, -1=desc)', default:'1' }
+      ]},
+    { id:'sortby', cat:'dynamic', name:'SORTBY', alt:'Sort by another range',
+      desc:'Sorts a range or array based on values in a corresponding range or array (Dynamic Array).',
+      template:'=SORTBY({{array}}, {{by_array}}, {{order}})',
+      fields:[
+        { key:'array',    label:'Array',         default:'A2:C100' },
+        { key:'by_array', label:'Sort by range', default:'B2:B100' },
+        { key:'order',    label:'Order (1=asc, -1=desc)', default:'-1' }
+      ]},
+    { id:'sequence', cat:'dynamic', name:'SEQUENCE', alt:'Sequence of numbers',
+      desc:'Generates a list of sequential numbers in an array (Dynamic Array).',
+      template:'=SEQUENCE({{rows}}, {{cols}}, {{start}}, {{step}})',
+      fields:[
+        { key:'rows',  label:'Rows',    default:'10' },
+        { key:'cols',  label:'Columns', default:'1' },
+        { key:'start', label:'Start',   default:'1' },
+        { key:'step',  label:'Step',    default:'1' }
+      ]},
+
+    /* ---------------- REFERENCE ---------------- */
+    { id:'row', cat:'reference', name:'ROW', alt:'Row number',
+      desc:'Returns the row number of a referenced cell.',
+      template:'=ROW({{reference}})',
+      fields:[{ key:'reference', label:'Reference', default:'A5' }]},
+    { id:'column', cat:'reference', name:'COLUMN', alt:'Column number',
+      desc:'Returns the column number of a referenced cell.',
+      template:'=COLUMN({{reference}})',
+      fields:[{ key:'reference', label:'Reference', default:'C1' }]},
+    { id:'rows', cat:'reference', name:'ROWS', alt:'Count rows',
+      desc:'Returns the total number of rows in a range or reference.',
+      template:'=ROWS({{array}})',
+      fields:[{ key:'array', label:'Range', default:'A1:C100' }]},
+    { id:'columns', cat:'reference', name:'COLUMNS', alt:'Count columns',
+      desc:'Returns the total number of columns in a range or reference.',
+      template:'=COLUMNS({{array}})',
+      fields:[{ key:'array', label:'Range', default:'A1:C100' }]},
+    { id:'transpose', cat:'reference', name:'TRANSPOSE', alt:'Flip orientation',
+      desc:'Flips the orientation of a range from horizontal to vertical or vice versa.',
+      template:'=TRANSPOSE({{array}})',
+      fields:[{ key:'array', label:'Array', default:'A1:C10' }]},
+
+    /* ---------------- TEXT ---------------- */
+    { id:'concat', cat:'text', name:'CONCAT', alt:'Join texts',
+      desc:'Combines text from multiple ranges or strings, without delimiter options.',
+      template:'=CONCAT({{a}}, {{b}}, {{c}})',
+      fields:[
+        { key:'a', label:'Text 1', default:'A2' },
+        { key:'b', label:'Text 2', default:'B2' },
+        { key:'c', label:'Text 3', default:'C2' }
+      ]},
+    { id:'textjoin', cat:'text', name:'TEXTJOIN', alt:'Join with delimiter',
+      desc:'Combines text from multiple ranges using a delimiter, with an option to ignore empty cells.',
+      template:'=TEXTJOIN("{{delim}}", TRUE, {{range}})',
+      fields:[
+        { key:'delim', label:'Delimiter', default:', ' },
+        { key:'range', label:'Range',     default:'A2:A10' }
+      ]},
+    { id:'left', cat:'text', name:'LEFT', alt:'First characters',
+      desc:'Returns the first N characters of a text, starting from the left.',
+      template:'=LEFT({{text}}, {{count}})',
+      fields:[
+        { key:'text',  label:'Text',       default:'A2' },
+        { key:'count', label:'Characters', default:'4' }
+      ]},
+    { id:'right', cat:'text', name:'RIGHT', alt:'Last characters',
+      desc:'Returns the last N characters of a text, starting from the right.',
+      template:'=RIGHT({{text}}, {{count}})',
+      fields:[
+        { key:'text',  label:'Text',       default:'A2' },
+        { key:'count', label:'Characters', default:'4' }
+      ]},
+    { id:'mid', cat:'text', name:'MID', alt:'Middle characters',
+      desc:'Returns a portion of a text, starting at a position and lasting a given number of characters.',
+      template:'=MID({{text}}, {{start}}, {{count}})',
+      fields:[
+        { key:'text',  label:'Text',              default:'A2' },
+        { key:'start', label:'Starting position', default:'3' },
+        { key:'count', label:'Characters',        default:'5' }
+      ]},
+    { id:'len', cat:'text', name:'LEN', alt:'Length of text',
+      desc:'Counts the number of characters in a text, including spaces.',
+      template:'=LEN({{text}})',
+      fields:[{ key:'text', label:'Text', default:'A2' }]},
+    { id:'find', cat:'text', name:'FIND', alt:'Case-sensitive search',
+      desc:'Locates one text string inside another (case-sensitive).',
+      template:'=FIND("{{find}}", {{within}}, {{start}})',
+      fields:[
+        { key:'find',   label:'Find text',   default:'@' },
+        { key:'within', label:'Within text', default:'A2' },
+        { key:'start',  label:'Start',       default:'1' }
+      ]},
+    { id:'search', cat:'text', name:'SEARCH', alt:'Case-insensitive search',
+      desc:'Locates one text string inside another (case-insensitive, allows wildcards).',
+      template:'=SEARCH("{{find}}", {{within}}, {{start}})',
+      fields:[
+        { key:'find',   label:'Find text',   default:'@' },
+        { key:'within', label:'Within text', default:'A2' },
+        { key:'start',  label:'Start',       default:'1' }
+      ]},
+    { id:'text', cat:'text', name:'TEXT', alt:'Format a number',
+      desc:'Converts a numeric value into formatted text using a specified format code.',
+      template:'=TEXT({{value}}, "{{format}}")',
+      fields:[
+        { key:'value',  label:'Value',  default:'A2' },
+        { key:'format', label:'Format', default:'0.00' }
+      ]},
+    { id:'value', cat:'text', name:'VALUE', alt:'Text to number',
+      desc:'Converts a text string representing a number back into a numeric value.',
+      template:'=VALUE({{text}})',
+      fields:[{ key:'text', label:'Text', default:'A2' }]},
+    { id:'exact', cat:'text', name:'EXACT', alt:'Strict comparison',
+      desc:'Compares two text strings and returns TRUE if they are exactly identical (case-sensitive).',
+      template:'=EXACT({{a}}, {{b}})',
+      fields:[
+        { key:'a', label:'Text 1', default:'A2' },
+        { key:'b', label:'Text 2', default:'B2' }
+      ]},
+    { id:'rept', cat:'text', name:'REPT', alt:'Repeat text',
+      desc:'Repeats text a specified number of times.',
+      template:'=REPT("{{text}}", {{count}})',
+      fields:[
+        { key:'text',  label:'Text',   default:'*' },
+        { key:'count', label:'Repeat', default:'5' }
+      ]},
+
+    /* ---------------- CLEAN ---------------- */
+    { id:'trim', cat:'clean', name:'TRIM', alt:'Remove extra spaces',
+      desc:'Removes extra spaces from a text, keeping only single spaces between words.',
+      template:'=TRIM({{text}})',
+      fields:[{ key:'text', label:'Text', default:'A2' }]},
+    { id:'cleantext', cat:'clean', name:'CLEAN', alt:'Remove non-printable',
+      desc:'Removes non-printable characters from text.',
+      template:'=CLEAN({{text}})',
+      fields:[{ key:'text', label:'Text', default:'A2' }]},
+    { id:'substitute', cat:'clean', name:'SUBSTITUTE', alt:'Replace text',
+      desc:'Replaces occurrences of a text inside another one.',
+      template:'=SUBSTITUTE({{text}}, "{{old}}", "{{new}}")',
+      fields:[
+        { key:'text', label:'Text',         default:'A2' },
+        { key:'old',  label:'Replace this', default:'-' },
+        { key:'new',  label:'With this',    default:'/' }
+      ]},
+    { id:'replace', cat:'clean', name:'REPLACE', alt:'Replace by position',
+      desc:'Replaces part of a text string with a different string, based on character position.',
+      template:'=REPLACE({{text}}, {{start}}, {{count}}, "{{new}}")',
+      fields:[
+        { key:'text',  label:'Old text',     default:'A2' },
+        { key:'start', label:'Start',        default:'3' },
+        { key:'count', label:'Characters',   default:'2' },
+        { key:'new',   label:'New text',     default:'XX' }
+      ]},
+    { id:'upper', cat:'clean', name:'UPPER', alt:'To uppercase',
+      desc:'Converts a text to uppercase letters.',
+      template:'=UPPER({{text}})',
+      fields:[{ key:'text', label:'Text', default:'A2' }]},
+    { id:'lower', cat:'clean', name:'LOWER', alt:'To lowercase',
+      desc:'Converts a text to lowercase letters.',
+      template:'=LOWER({{text}})',
+      fields:[{ key:'text', label:'Text', default:'A2' }]},
+    { id:'proper', cat:'clean', name:'PROPER', alt:'Capitalize each word',
+      desc:'Capitalizes the first letter of each word in a text string.',
+      template:'=PROPER({{text}})',
+      fields:[{ key:'text', label:'Text', default:'A2' }]},
+
+    /* ---------------- DATE ---------------- */
+    { id:'today', cat:'date', name:'TODAY', alt:'Current date',
+      desc:'Returns today’s date, without the time.',
+      template:'=TODAY()', fields:[]},
+    { id:'now', cat:'date', name:'NOW', alt:'Current date and time',
+      desc:'Returns the current date and time together.',
+      template:'=NOW()', fields:[]},
+    { id:'date', cat:'date', name:'DATE', alt:'Build a date',
+      desc:'Combines year, month and day inputs into a valid date serial number.',
+      template:'=DATE({{year}}, {{month}}, {{day}})',
+      fields:[
+        { key:'year',  label:'Year',  default:'2024' },
+        { key:'month', label:'Month', default:'1' },
+        { key:'day',   label:'Day',   default:'15' }
+      ]},
+    { id:'day', cat:'date', name:'DAY', alt:'Day of month',
+      desc:'Extracts the day of the month (1–31) from a date.',
+      template:'=DAY({{date}})',
+      fields:[{ key:'date', label:'Date', default:'A2' }]},
+    { id:'month', cat:'date', name:'MONTH', alt:'Month number',
+      desc:'Extracts the month (1–12) from a date.',
+      template:'=MONTH({{date}})',
+      fields:[{ key:'date', label:'Date', default:'A2' }]},
+    { id:'year', cat:'date', name:'YEAR', alt:'Year',
+      desc:'Extracts the four-digit year from a date.',
+      template:'=YEAR({{date}})',
+      fields:[{ key:'date', label:'Date', default:'A2' }]},
+    { id:'weekday', cat:'date', name:'WEEKDAY', alt:'Day of the week',
+      desc:'Returns a number (1–7) representing the day of the week for a date.',
+      template:'=WEEKDAY({{date}}, {{return_type}})',
+      fields:[
+        { key:'date',        label:'Date',                default:'A2' },
+        { key:'return_type', label:'Return type (1/2/3)', default:'2' }
+      ]},
+    { id:'workday', cat:'date', name:'WORKDAY', alt:'Working day offset',
+      desc:'Returns the date a specified number of working days before or after a start date.',
+      template:'=WORKDAY({{start}}, {{days}}, {{holidays}})',
+      fields:[
+        { key:'start',    label:'Start date', default:'A2' },
+        { key:'days',     label:'Work days',  default:'10' },
+        { key:'holidays', label:'Holidays',   default:'Holidays!A1:A10' }
+      ]},
+    { id:'networkdays', cat:'date', name:'NETWORKDAYS', alt:'Working days between',
+      desc:'Calculates the number of working days between two dates.',
+      template:'=NETWORKDAYS({{start}}, {{end}}, {{holidays}})',
+      fields:[
+        { key:'start',    label:'Start date', default:'A2' },
+        { key:'end',      label:'End date',   default:'B2' },
+        { key:'holidays', label:'Holidays',   default:'Holidays!A1:A10' }
+      ]},
+    { id:'edate', cat:'date', name:'EDATE', alt:'Shift by months',
+      desc:'Returns the date that is a specified number of months before or after a start date.',
+      template:'=EDATE({{start}}, {{months}})',
+      fields:[
+        { key:'start',  label:'Start date', default:'A2' },
+        { key:'months', label:'Months',     default:'3' }
+      ]},
+    { id:'eomonth', cat:'date', name:'EOMONTH', alt:'End of month',
+      desc:'Returns the last day of a month, N months before or after a given date.',
+      template:'=EOMONTH({{start}}, {{months}})',
+      fields:[
+        { key:'start',  label:'Start date',   default:'A2' },
+        { key:'months', label:'Month offset', default:'0' }
+      ]},
+    { id:'datedif', cat:'date', name:'DATEDIF', alt:'Difference between dates',
+      desc:'Returns the difference between two dates, in days, months or years.',
+      template:'=DATEDIF({{start}}, {{end}}, "{{unit}}")',
+      fields:[
+        { key:'start', label:'Start date',   default:'A2' },
+        { key:'end',   label:'End date',     default:'B2' },
+        { key:'unit',  label:'Unit (D/M/Y)', default:'Y' }
+      ]},
+    { id:'hour', cat:'date', name:'HOUR', alt:'Hour component',
+      desc:'Extracts the hour component (0–23) from a time value.',
+      template:'=HOUR({{time}})',
+      fields:[{ key:'time', label:'Time', default:'A2' }]},
+    { id:'minute', cat:'date', name:'MINUTE', alt:'Minute component',
+      desc:'Extracts the minute component (0–59) from a time value.',
+      template:'=MINUTE({{time}})',
+      fields:[{ key:'time', label:'Time', default:'A2' }]},
+    { id:'second', cat:'date', name:'SECOND', alt:'Second component',
+      desc:'Extracts the second component (0–59) from a time value.',
+      template:'=SECOND({{time}})',
+      fields:[{ key:'time', label:'Time', default:'A2' }]},
+
+    /* ---------------- FINANCIAL ---------------- */
+    { id:'pmt', cat:'financial', name:'PMT', alt:'Loan payment',
+      desc:'Calculates the periodic payment for a loan based on constant interest rates and regular payments.',
+      template:'=PMT({{rate}}, {{nper}}, {{pv}})',
+      fields:[
+        { key:'rate', label:'Rate per period',   default:'0.05/12' },
+        { key:'nper', label:'Number of periods', default:'60' },
+        { key:'pv',   label:'Present value',     default:'20000' }
+      ]},
+    { id:'fv', cat:'financial', name:'FV', alt:'Future value',
+      desc:'Calculates the future value of an investment with constant periodic payments and interest rate.',
+      template:'=FV({{rate}}, {{nper}}, {{pmt}})',
+      fields:[
+        { key:'rate', label:'Rate per period',    default:'0.05/12' },
+        { key:'nper', label:'Number of periods',  default:'60' },
+        { key:'pmt',  label:'Payment per period', default:'-300' }
+      ]},
+    { id:'pv', cat:'financial', name:'PV', alt:'Present value',
+      desc:'Calculates the present value of a loan or investment.',
+      template:'=PV({{rate}}, {{nper}}, {{pmt}})',
+      fields:[
+        { key:'rate', label:'Rate per period',    default:'0.05/12' },
+        { key:'nper', label:'Number of periods',  default:'60' },
+        { key:'pmt',  label:'Payment per period', default:'-300' }
+      ]},
+    { id:'npv', cat:'financial', name:'NPV', alt:'Net present value',
+      desc:'Calculates the net present value of an investment using a discount rate and cash flows.',
+      template:'=NPV({{rate}}, {{values}})',
+      fields:[
+        { key:'rate',   label:'Discount rate', default:'0.1' },
+        { key:'values', label:'Cash flows',    default:'A1:A10' }
+      ]},
+    { id:'irr', cat:'financial', name:'IRR', alt:'Internal rate of return',
+      desc:'Calculates the internal rate of return for a series of periodic cash flows.',
+      template:'=IRR({{values}})',
+      fields:[ { key:'values', label:'Cash flows', default:'A1:A10' } ]},
+    { id:'xirr', cat:'financial', name:'XIRR', alt:'IRR with irregular dates',
+      desc:'Calculates the internal rate of return for cash flows that occur at irregular dates.',
+      template:'=XIRR({{values}}, {{dates}})',
+      fields:[
+        { key:'values', label:'Cash flows', default:'A2:A10' },
+        { key:'dates',  label:'Dates',      default:'B2:B10' }
+      ]},
+    { id:'xnpv', cat:'financial', name:'XNPV', alt:'NPV with irregular dates',
+      desc:'Calculates the net present value for cash flows that occur at irregular dates.',
+      template:'=XNPV({{rate}}, {{values}}, {{dates}})',
+      fields:[
+        { key:'rate',   label:'Discount rate', default:'0.1' },
+        { key:'values', label:'Cash flows',    default:'A2:A10' },
+        { key:'dates',  label:'Dates',         default:'B2:B10' }
+      ]},
+    { id:'rate', cat:'financial', name:'RATE', alt:'Interest rate per period',
+      desc:'Calculates the interest rate per period of an annuity.',
+      template:'=RATE({{nper}}, {{pmt}}, {{pv}})',
+      fields:[
+        { key:'nper', label:'Number of periods',  default:'60' },
+        { key:'pmt',  label:'Payment per period', default:'-300' },
+        { key:'pv',   label:'Present value',      default:'20000' }
+      ]},
+    { id:'nper', cat:'financial', name:'NPER', alt:'Number of periods',
+      desc:'Returns the total number of payment periods for an investment or loan.',
+      template:'=NPER({{rate}}, {{pmt}}, {{pv}})',
+      fields:[
+        { key:'rate', label:'Rate per period',    default:'0.05/12' },
+        { key:'pmt',  label:'Payment per period', default:'-300' },
+        { key:'pv',   label:'Present value',      default:'20000' }
+      ]},
+
+    /* ---------------- INFO ---------------- */
+    { id:'isblank', cat:'info', name:'ISBLANK', alt:'Empty cell test',
+      desc:'Returns TRUE if a designated cell is empty.',
+      template:'=ISBLANK({{cell}})',
+      fields:[{ key:'cell', label:'Cell', default:'A2' }]},
+    { id:'isnumber', cat:'info', name:'ISNUMBER', alt:'Number test',
+      desc:'Returns TRUE if a designated value is a number.',
+      template:'=ISNUMBER({{cell}})',
+      fields:[{ key:'cell', label:'Cell', default:'A2' }]},
+    { id:'istext', cat:'info', name:'ISTEXT', alt:'Text test',
+      desc:'Returns TRUE if a designated value is text.',
+      template:'=ISTEXT({{cell}})',
+      fields:[{ key:'cell', label:'Cell', default:'A2' }]}
+  ];
+
+  /* ==========================================================================
+     STATE
+     ========================================================================== */
+  const state = { category: 'all', search: '', activeId: null };
+  let lastFocused = null;
+
+  /* ==========================================================================
+     DOM SHORTCUTS
+     ========================================================================== */
+  const $  = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+  const grid        = $('#grid');
+  const categories  = $('#categories');
+  const search      = $('#search');
+  const empty       = $('#empty');
+  const countLabel  = $('#countLabel');
+  const modal       = $('#modal');
+  const modalName   = $('#modalName');
+  const modalAlt    = $('#modalAlt');
+  const modalCat    = $('#modalCat');
+  const modalDesc   = $('#modalDesc');
+  const fieldsWrap  = $('#fields');
+  const preview     = $('#preview');
+  const copyBtn     = $('#copyBtn');
+  const toast       = $('#toast');
+  const themeToggle = $('#themeToggle');
+  const themeColor  = $('#themeColor');
+  const guideBtn    = $('#guideBtn');
+  const guideModal  = $('#guideModal');
+  const catList     = $('#catList');
+
+  /* ==========================================================================
+     BODY SCROLL LOCK (works on iOS Safari)
+     ========================================================================== */
+  let scrollLockY = 0;
+  let scrollLocked = false;
+
+  function lockScroll(){
+    if (scrollLocked) return;
+    scrollLocked = true;
+    scrollLockY = window.scrollY || window.pageYOffset || 0;
+    document.body.style.position = 'fixed';
+    document.body.style.top = (-scrollLockY) + 'px';
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
+    document.body.style.overflow = 'hidden';
+  }
+  function unlockScroll(){
+    if (!scrollLocked) return;
+    scrollLocked = false;
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    document.body.style.width = '';
+    document.body.style.overflow = '';
+    window.scrollTo(0, scrollLockY);
+  }
+
+  /* ==========================================================================
+     FOCUS TRAP
+     ========================================================================== */
+  const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+  function trapFocus(container, e){
+    if (e.key !== 'Tab') return;
+    const items = Array.from(container.querySelectorAll(FOCUSABLE))
+      .filter(el => el.offsetParent !== null || el === document.activeElement);
+    if (items.length === 0) return;
+    const first = items[0];
+    const last  = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault(); last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault(); first.focus();
+    }
+  }
+
+  /* ==========================================================================
+     RENDER CATEGORY CHIPS
+     ========================================================================== */
+  function renderCategories(){
+    const items = [
+      { key:'all', label:'All', color:'var(--accent)' },
+      ...Object.entries(CATEGORIES).map(([key, val]) => ({
+        key, label: val.label, color: val.color
+      }))
+    ];
+
+    categories.innerHTML = items.map(item => {
+      const active = state.category === item.key;
+      return `
+        <button type="button"
+                class="cat-chip${active ? ' active' : ''}"
+                data-cat="${item.key}"
+                aria-pressed="${active ? 'true' : 'false'}">
+          <span class="dot" style="background:${item.color}" aria-hidden="true"></span>
+          <span>${item.label}</span>
+        </button>
+      `;
+    }).join('');
+
+    categories.querySelectorAll('.cat-chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.category = btn.dataset.cat;
+        renderCategories();
+        renderGrid();
+      });
+    });
+  }
+
+  /* ==========================================================================
+     RENDER FORMULA GRID
+     ========================================================================== */
+  function getFiltered(){
+    const q = state.search.trim().toLowerCase();
+    return FORMULAS.filter(f => {
+      if (state.category !== 'all' && f.cat !== state.category) return false;
+      if (!q) return true;
+      const haystack = [f.name, f.alt, f.desc, f.id].join(' ').toLowerCase();
+      return haystack.includes(q);
+    });
+  }
+
+  function renderGrid(){
+    const list = getFiltered();
+
+    if (list.length === 0) {
+      grid.innerHTML = '';
+      empty.classList.add('show');
+    } else {
+      empty.classList.remove('show');
+      grid.innerHTML = list.map((f, i) => {
+        const cat = CATEGORIES[f.cat];
+        return `
+          <button type="button"
+                  class="formula-card"
+                  data-id="${f.id}"
+                  style="--i:${Math.min(i, 16)};--cat-color:${cat.color}">
+            <span class="card-top">
+              <span class="card-cat"><span class="dot" aria-hidden="true"></span>${cat.label}</span>
+              <span class="formula-arrow" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg>
+              </span>
+            </span>
+            <span class="formula-name">${f.name}</span>
+            <span class="formula-desc">${f.desc}</span>
+          </button>
+        `;
+      }).join('');
+
+      grid.querySelectorAll('.formula-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const f = FORMULAS.find(x => x.id === card.dataset.id);
+          if (f) openModal(f);
+        });
+      });
+    }
+
+    const n = list.length;
+    countLabel.innerHTML = `<b>${n}</b> formula${n === 1 ? '' : 's'}`;
+  }
+
+  /* ==========================================================================
+     RENDER CATEGORY LIST INSIDE THE GUIDE
+     ========================================================================== */
+  function renderCategoryGuide(){
+    catList.innerHTML = Object.entries(CATEGORIES).map(([key, val]) => `
+      <div class="cat-item">
+        <span class="swatch" style="background:${val.color}" aria-hidden="true"></span>
+        <div>
+          <b>${val.label}</b>
+          ${val.hint}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  /* ==========================================================================
+     SEARCH
+     ========================================================================== */
+  search.addEventListener('input', () => {
+    state.search = search.value;
+    renderGrid();
+  });
+
+  /* ==========================================================================
+     KEYBOARD SHORTCUTS
+     ========================================================================== */
+  document.addEventListener('keydown', (e) => {
+    const modalOpen = modal.classList.contains('open');
+    const guideOpen = guideModal.classList.contains('open');
+    const anyModalOpen = modalOpen || guideOpen;
+
+    // Focus trap within whichever dialog is open
+    if (e.key === 'Tab') {
+      if (modalOpen) trapFocus(modal.querySelector('.modal-panel'), e);
+      else if (guideOpen) trapFocus(guideModal.querySelector('.modal-panel'), e);
+      return;
+    }
+
+    if (e.key === '/' && !anyModalOpen) {
+      const tag = (e.target.tagName || '').toLowerCase();
+      const isEditable = tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable;
+      if (!isEditable && document.activeElement !== search) {
+        e.preventDefault();
+        search.focus();
+      }
+    }
+
+    if (e.key === 'Escape') {
+      if (modalOpen) closeModal();
+      else if (guideOpen) closeGuide();
+      else if (document.activeElement === search) {
+        search.value = '';
+        state.search = '';
+        renderGrid();
+        search.blur();
+      }
+    }
+  });
+
+  /* ==========================================================================
+     FORMULA MODAL
+     ========================================================================== */
+  function openModal(formula){
+    state.activeId = formula.id;
+
+    const cat = CATEGORIES[formula.cat];
+
+    modalCat.style.setProperty('--cat-color', cat.color);
+    modalCat.querySelector('.dot').style.background = cat.color;
+    modalCat.querySelector('span:last-child').textContent = cat.label;
+
+    modalName.textContent = formula.name;
+    modalAlt.innerHTML = `Also known as &middot; <b>${formula.alt}</b>`;
+    modalDesc.textContent = formula.desc;
+
+    fieldsWrap.innerHTML = '';
+
+    if (formula.fields.length === 0) {
+      fieldsWrap.innerHTML = `<p style="color:var(--ink-3);font-size:.9rem;grid-column:1/-1;">No parameters — copy and use as is.</p>`;
+    } else {
+      formula.fields.forEach(f => {
+        const wrap = document.createElement('div');
+        wrap.className = 'field';
+        wrap.innerHTML = `
+          <label class="field-label" for="field-${f.key}">
+            ${f.label}
+            <span class="var">{{${f.key}}}</span>
+          </label>
+          <input type="text"
+                 id="field-${f.key}"
+                 data-key="${f.key}"
+                 value="${escapeAttr(f.default)}"
+                 spellcheck="false"
+                 autocomplete="off"
+                 autocorrect="off"
+                 autocapitalize="off">
+        `;
+        fieldsWrap.appendChild(wrap);
+      });
+    }
+
+    fieldsWrap.querySelectorAll('input[data-key]').forEach(inp => {
+      inp.addEventListener('input', updatePreview);
+    });
+
+    updatePreview();
+
+    if (!modal.classList.contains('open')) {
+      lastFocused = document.activeElement;
+      modal.classList.add('open');
+      lockScroll();
+      // Promote to its own GPU layer only during the entrance animation
+      const panel = modal.querySelector('.modal-panel');
+      panel.style.willChange = 'transform';
+      setTimeout(() => { panel.style.willChange = ''; }, 400);
+
+      setTimeout(() => {
+        const firstInput = fieldsWrap.querySelector('input');
+        const target = firstInput || modal.querySelector('.modal-close');
+        if (target) target.focus({ preventScroll: true });
+      }, 120);
+    }
+  }
+
+  function closeModal(){
+    modal.classList.remove('open');
+    unlockScroll();
+    state.activeId = null;
+    if (lastFocused && typeof lastFocused.focus === 'function') {
+      lastFocused.focus({ preventScroll: true });
+    }
+  }
+
+  // Use closest() so clicks on the SVG inside the close button work.
+  modal.addEventListener('click', (e) => {
+    if (e.target.closest('[data-close]')) closeModal();
+  });
+
+  /* ==========================================================================
+     LIVE PREVIEW
+     ========================================================================== */
+  function updatePreview(){
+    if (!state.activeId) return;
+    const f = FORMULAS.find(x => x.id === state.activeId);
+    if (!f) return;
+
+    let out = f.template;
+    fieldsWrap.querySelectorAll('input[data-key]').forEach(inp => {
+      out = out.split('{{' + inp.dataset.key + '}}').join(inp.value);
+    });
+
+    preview.innerHTML = highlight(out);
+  }
+
+  // Syntax highlighting: function names, cell references, and strings.
+  // Uses a single-pass tokenizer so pieces never overlap or nest.
+  function highlight(str){
+    // 1. Escape HTML
+    let s = str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    // 2. One pass — alternation tries left-to-right at each position.
+    const re = /("([^"]*)")|(\b[A-Z][A-Z0-9._]*(?=\())|((?:[A-Za-z_][A-Za-z0-9_]*!)?\$?[A-Z]{1,3}\$?\d+(?::\$?[A-Z]{1,3}\$?\d+)?)/g;
+
+    return s.replace(re, (m, strFull, strInner, fn, ref) => {
+      if (strFull !== undefined) return `<span class="tok-str">${strFull}</span>`;
+      if (fn !== undefined)      return `<span class="tok-fn">${fn}</span>`;
+      if (ref !== undefined)     return `<span class="tok-ref">${ref}</span>`;
+      return m;
+    });
+  }
+
+  function escapeAttr(s){
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  /* ==========================================================================
+     COPY BUTTON
+     ========================================================================== */
+  copyBtn.addEventListener('click', async () => {
+    const text = preview.textContent || preview.innerText || '';
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast('Formula copied.');
+      flashCopyButton();
+    } catch (err) {
+      const range = document.createRange();
+      range.selectNode(preview);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      try {
+        document.execCommand('copy');
+        showToast('Formula copied.');
+        flashCopyButton();
+      } catch (e) {
+        showToast('Copy failed.');
+      }
+      sel.removeAllRanges();
+    }
+  });
+
+  function flashCopyButton(){
+    copyBtn.style.background = 'var(--preview-accent)';
+    copyBtn.style.color = 'var(--preview-bg)';
+    setTimeout(() => {
+      copyBtn.style.background = '';
+      copyBtn.style.color = '';
+    }, 800);
+  }
+
+  /* ==========================================================================
+     TOAST
+     ========================================================================== */
+  let toastTimer;
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+  }
+
+  /* ==========================================================================
+     GUIDE MODAL
+     ========================================================================== */
+  function openGuide(){
+    lastFocused = document.activeElement;
+    guideModal.classList.add('open');
+    lockScroll();
+    const panel = guideModal.querySelector('.modal-panel');
+    panel.style.willChange = 'transform';
+    setTimeout(() => { panel.style.willChange = ''; }, 400);
+
+    setTimeout(() => {
+      const closeBtn = guideModal.querySelector('.modal-close');
+      if (closeBtn) closeBtn.focus({ preventScroll: true });
+    }, 120);
+  }
+
+  function closeGuide(){
+    guideModal.classList.remove('open');
+    unlockScroll();
+    if (lastFocused && typeof lastFocused.focus === 'function') {
+      lastFocused.focus({ preventScroll: true });
+    }
+  }
+
+  guideBtn.addEventListener('click', openGuide);
+
+  guideModal.addEventListener('click', (e) => {
+    if (e.target.closest('[data-close-guide]')) closeGuide();
+  });
+
+  /* ==========================================================================
+     THEME
+     ========================================================================== */
+  const savedTheme = storeGet('xl88.theme');
+  if (savedTheme === 'dark' || savedTheme === 'light') {
+    document.documentElement.dataset.theme = savedTheme;
+    updateThemeColor();
+  }
+
+  themeToggle.addEventListener('click', () => {
+    const current = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = current;
+    storeSet('xl88.theme', current);
+    updateThemeColor();
+  });
+
+  function updateThemeColor(){
+    const c = document.documentElement.dataset.theme === 'dark' ? '#0f1210' : '#f6f3eb';
+    if (themeColor) themeColor.setAttribute('content', c);
+  }
+  updateThemeColor();
+
+  /* ==========================================================================
+     SANITY CHECK
+     ========================================================================== */
+  (function validateData(){
+    const seen = new Set();
+    FORMULAS.forEach(f => {
+      if (seen.has(f.id)) console.warn('[XL88] Duplicate formula id:', f.id);
+      seen.add(f.id);
+      if (!CATEGORIES[f.cat]) console.warn('[XL88] Unknown category:', f.cat, '→', f.id);
+    });
+  })();
+
+  /* ==========================================================================
+     BOOT
+     ========================================================================== */
+  renderCategories();
+  renderGrid();
+  renderCategoryGuide();
+
+})();
+</script>
+</body>
+</html>
